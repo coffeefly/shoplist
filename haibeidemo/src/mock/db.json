@@ -1,0 +1,45 @@
+{
+  "brand": "海贝",
+  "goodsno": "test002",
+  "price": "100",
+  "title": "美丽的连衣裙",
+  "sizeList": ["M", "L", "S"],
+  "colorList": ["灰色", "红色", "黄色"],
+  "colorAndSize": [{
+    "color": "灰色",
+    "Inventory": [{
+      "name": "M",
+      "value": 166
+    }, {
+      "name": "L",
+      "value": 66
+    }, {
+      "name": "S",
+      "value": 6
+    }]
+  }, {
+    "color": "红色",
+    "Inventory": [{
+      "name": "M",
+      "value": 188
+    }, {
+      "name": "L",
+      "value": 88
+    }, {
+      "name": "S",
+      "value": 8
+    }]
+  }, {
+    "color": "黄色",
+    "Inventory": [{
+      "name": "M",
+      "value": 199
+    }, {
+      "name": "L",
+      "value": 99
+    }, {
+      "name": "S",
+      "value": 9
+    }]
+  }]
+}
