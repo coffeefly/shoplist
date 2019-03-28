@@ -24,15 +24,14 @@
         <tbody>
           <tr v-for="(item, key) in tableData.colorAndSize" :key="key">
             <td>{{ item.color }}</td>
-            <template v-for="(childitem, childindex) in item.Inventory">
+            <template v-for="(childitem, childindex) in preDataList[key]">
               <td :key="childindex">
                 <input
                   type="number"
                   v-number-only
-                  @input="inputChange(childitem, $event, key, childindex)"
-                  @change="changeData(childitem, $event, key, childindex)"
-                  :value="childitem.value"
-                  :v-model="childitem.value"
+                  @change="changeData($event, key, childindex)"
+                  :value="childitem"
+                  :v-model="childitem"
                 />
               </td>
             </template>
@@ -85,6 +84,9 @@ export default {
     numberOnly: {
       bind: function(el) {
         el.handler = function() {
+          if (el.value === "") {
+            el.value = 111;
+          }
           el.value = el.value.replace(/\D+/g, "");
         };
         el.addEventListener("input", el.handler);
@@ -125,31 +127,29 @@ export default {
           console.groupEnd();
         });
     },
-    //输入框事件
-    inputChange(defaultval, e, key, childindex) {
-      if (e.target.value <= defaultval.value) {
+    changeData(e, key, childindex) {
+      if (e.target.value === "") {
+        // e.target.value = "111111";
+      }
+      let defaultval = this.tableData.colorAndSize[key].Inventory[childindex]
+        .value;
+      if (e.target.value <= defaultval) {
         this.preDataList[key][childindex] = parseInt(e.target.value);
       }
-    },
-    changeData(defaultval, e, key, childindex) {
-      console.log(e.target.value === "");
-      if (e.target.value === "") {
-      }
       let newval = parseInt(e.target.value);
-      console.log(newval > defaultval.value, newval, defaultval.value);
-      if (newval > defaultval.value) {
+      let tempval = "";
+      if (newval > defaultval) {
         //计算总额
-        this.totalNum =
-          this.total -
-          defaultval.value +
-          parseInt(this.preDataList[key][childindex]);
+        tempval = parseInt(this.preDataList[key][childindex]);
         this.$alert("不能超过库存数哦！");
       } else {
-        this.totalNum = this.total - defaultval.value + newval;
+        tempval = newval;
       }
+      this.totalNum = this.total - defaultval + tempval;
       this.totalMoney = this.totalNum + this.tableData.price;
+      console.log(this.preDataList);
       this.$nextTick(() => {
-        e.target.value = parseInt(this.preDataList[key][childindex]);
+        e.target.value = tempval;
       });
     }
   }
