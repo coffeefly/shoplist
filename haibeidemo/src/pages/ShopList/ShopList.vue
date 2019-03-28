@@ -29,10 +29,12 @@
                 <input
                   type="number"
                   v-number-only
+                  style="width:50%"
                   @change="changeData($event, key, childindex)"
-                  :value="childitem"
+                  :value="childitem === 0 ? 0 : childitem"
                   :v-model="childitem"
                 />
+                <span> / {{ item.Inventory[childindex].value }}</span>
               </td>
             </template>
             <td>
@@ -70,11 +72,9 @@ export default {
   data() {
     return {
       tableData: {},
-      colorAndSize: [],
       preDataList: [[]],
       totalNum: 0,
-      totalMoney: 0,
-      total: 0
+      totalMoney: 0
     };
   },
   created() {
@@ -84,9 +84,6 @@ export default {
     numberOnly: {
       bind: function(el) {
         el.handler = function() {
-          if (el.value === "") {
-            el.value = 111;
-          }
           el.value = el.value.replace(/\D+/g, "");
         };
         el.addEventListener("input", el.handler);
@@ -106,18 +103,14 @@ export default {
         .then(res => {
           if (res.code === this.GLOBAL.CODE) {
             this.tableData = res.data;
-            this.colorAndSize = this.tableData.colorAndSize;
             let sum = 0;
             this.tableData.colorAndSize.map((el, elIndex) => {
               this.preDataList[elIndex] = [];
               el.Inventory.map((item, itemIndex) => {
-                this.preDataList[elIndex][itemIndex] = item.value;
+                this.preDataList[elIndex][itemIndex] = 0;
                 sum += item.value;
               });
             });
-            this.totalNum = sum;
-            this.total = sum;
-            this.totalMoney = sum * this.tableData.price;
           } else {
             console.log("获取数据失败");
           }
@@ -128,26 +121,31 @@ export default {
         });
     },
     changeData(e, key, childindex) {
-      if (e.target.value === "") {
-        // e.target.value = "111111";
-      }
       let defaultval = this.tableData.colorAndSize[key].Inventory[childindex]
         .value;
+      if (e.target.value === "") {
+        e.target.value = defaultval;
+      }
       if (e.target.value <= defaultval) {
         this.preDataList[key][childindex] = parseInt(e.target.value);
       }
       let newval = parseInt(e.target.value);
       let tempval = "";
       if (newval > defaultval) {
-        //计算总额
-        tempval = parseInt(this.preDataList[key][childindex]);
         this.$alert("不能超过库存数哦！");
-      } else {
-        tempval = newval;
       }
-      this.totalNum = this.total - defaultval + tempval;
-      this.totalMoney = this.totalNum + this.tableData.price;
-      console.log(this.preDataList);
+      tempval = this.preDataList[key][childindex];
+      //计算总额
+      this.totalNum = this.preDataList
+        .map(el => {
+          return el.reduce((pre, cur) => {
+            return pre + cur;
+          });
+        })
+        .reduce((pre, cur) => {
+          return pre + cur;
+        });
+      this.totalMoney = this.totalNum * this.tableData.price;
       this.$nextTick(() => {
         e.target.value = tempval;
       });
@@ -171,6 +169,13 @@ export default {
     height: 30px;
     line-height: 30px;
     padding-left: 5px;
+  }
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
   }
 }
 </style>
